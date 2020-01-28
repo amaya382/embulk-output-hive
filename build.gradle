@@ -13,7 +13,7 @@ configurations {
     provided
 }
 
-version = "0.0.1-dev"
+version = "0.0.1.pre"
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -21,7 +21,7 @@ targetCompatibility = 1.7
 dependencies {
     compile  "org.embulk:embulk-core:0.8.8"
     provided "org.embulk:embulk-core:0.8.8"
-    compile "org.apache.hive:hive-jdbc:1.2.1"
+    compile "org.apache.hive:hive-jdbc:1.1.0"
     compile "org.apache.hadoop:hadoop-common:2.7.2"
     compile "org.apache.hadoop:hadoop-yarn-common:2.7.2"
     compile "org.apache.hadoop:hadoop-hdfs:2.7.2"
