@@ -207,7 +207,7 @@ public class HiveOutputPlugin
             // upload the rest to hdfs
             try {
                 FileSystem fs = getFileSystem(task);
-                OutputStream output = fs.create(new Path(task.getLocation() + "/" + UUID.randomUUID.toString()), false);
+                OutputStream output = fs.create(new Path(task.getLocation() + "/" + UUID.randomUUID().toString()), false);
                 output.write(buff.toString().getBytes());
                 output.close();
             } catch(Exception ex) {
