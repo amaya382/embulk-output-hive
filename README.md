@@ -23,6 +23,7 @@ attention: this plugin is developping, need to build yourself if you use.
 - **location**: data file's directory location of hive external table (string, required)
 - **config_files**: configuration parameter files for hdfs (array of string, default: [])
 - **config**: configuration parameter for hdfs (map of string, default: {})
+- **batch_size**: batch upper-bound size for each external table page (int, default: 500000)
 
 ## Example
 
