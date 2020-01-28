@@ -24,6 +24,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class HiveOutputPlugin
         implements OutputPlugin {
@@ -42,7 +43,7 @@ public class HiveOutputPlugin
             if (c.getType() instanceof BooleanType) {
                 hiveType = "boolean";
             } else if (c.getType() instanceof LongType) {
-                hiveType = "int";
+                hiveType = "bigint";
             } else if (c.getType() instanceof DoubleType) {
                 hiveType = "double";
             } else if (c.getType() instanceof TimestampType) {
@@ -129,6 +130,10 @@ public class HiveOutputPlugin
         // configuration path_prefix (required String)
         @Config("location")
         String getLocation();
+
+        @Config("batch_size")
+        @ConfigDefault(100000)
+        int getBatchSize();
     }
 
     public static class PluginPageOutput
@@ -138,12 +143,16 @@ public class HiveOutputPlugin
         private Schema schema = null;
         private PluginTask task = null;
         private StringBuffer buff = null;
+        private int batchSize = 0;
+        private int nElsPerRow = 0;
 
         PluginPageOutput(PageReader reader, Schema schema, PluginTask task) {
             this.reader = reader;
             this.schema = schema;
             this.task = task;
             this.buff = new StringBuffer();
+            this.batchSize = task.getBatchSize();
+            this.nElsPerRow = schema.size() * 2 + 1; // el, sep, and lf
         }
 
         public void add(Page page) {
@@ -173,6 +182,21 @@ public class HiveOutputPlugin
                     }
                 }
                 buff.append("\n");
+
+                if (this.batchSize < buff.length() / nElsPerRow) {
+                    // Upload to hdfs
+                    try {
+                        FileSystem fs = getFileSystem(task);
+                        OutputStream output = fs.create(new Path(task.getLocation() + "/" + UUID.randomUUID().toString()), false);
+                        output.write(buff.toString().getBytes());
+                        output.close();
+
+                        buff.setLength(0);
+                    } catch(Exception ex) {
+                        ex.printStackTrace();
+                        System.exit(1);
+                    }
+                }
             }
         }
 
@@ -180,10 +204,10 @@ public class HiveOutputPlugin
         }
 
         public void close() {
-            // upload to hdfs
+            // upload the rest to hdfs
             try {
                 FileSystem fs = getFileSystem(task);
-                OutputStream output = fs.create(new Path(task.getLocation() + "/" + this.hashCode()), false);
+                OutputStream output = fs.create(new Path(task.getLocation() + "/" + UUID.randomUUID.toString()), false);
                 output.write(buff.toString().getBytes());
                 output.close();
             } catch(Exception ex) {
