@@ -132,7 +132,7 @@ public class HiveOutputPlugin
         String getLocation();
 
         @Config("batch_size")
-        @ConfigDefault(500000)
+        @ConfigDefault("500000")
         int getBatchSize();
     }
 
