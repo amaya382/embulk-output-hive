@@ -210,6 +210,8 @@ public class HiveOutputPlugin
                 OutputStream output = fs.create(new Path(task.getLocation() + "/" + UUID.randomUUID().toString()), false);
                 output.write(buff.toString().getBytes());
                 output.close();
+
+                buff.setLength(0);
             } catch(Exception ex) {
                 ex.printStackTrace();
                 System.exit(1);
